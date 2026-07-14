@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: homestorage
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/homestorage
+    username: admin
+    password: securePassword123
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin123
+  bucket-name: homestorage-photos
+
+jwt:
+  secret: ${JWT_SECRET:your-very-secure-jwt-secret-key-at-least-256-bits-long-12345678901234567890123456789012}
+  access-token-expiration: 3600000
+  refresh-token-expiration: 2592000000
+
+logging:
+  level:
+    com.homestorage: DEBUG
+    org.springframework.security: INFO
+
+server:
+  port: 8080
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
