@@ -47,6 +47,10 @@ services:
     container_name: homestorage-app
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/homestorage
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: securePassword123
+      MINIO_ENDPOINT: http://minio:9000
       DB_USER: admin
       DB_PASSWORD: securePassword123
       MINIO_ACCESS_KEY: minioadmin

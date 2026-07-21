@@ -3,7 +3,7 @@ spring:
     name: homestorage
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/homestorage
+    url: jdbc:postgresql://postgres:5432/homestorage
     username: admin
     password: securePassword123
     driver-class-name: org.postgresql.Driver
@@ -29,7 +29,7 @@ spring:
       max-request-size: 10MB
 
 minio:
-  endpoint: http://localhost:9000
+  endpoint: http://minio:9000
   access-key: minioadmin
   secret-key: minioadmin123
   bucket-name: homestorage-photos
@@ -46,6 +46,7 @@ logging:
 
 server:
   port: 8080
+  address: 0.0.0.0
 
 springdoc:
   api-docs:
