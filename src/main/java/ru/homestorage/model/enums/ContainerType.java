@@ -6,4 +6,5 @@ public enum ContainerType {
   FURNITURE,  // Мебель (шкаф, комод)
   SHELF,      // Полка
   BOX,        // Коробка
+  DRAWER      // Ящик
 }
