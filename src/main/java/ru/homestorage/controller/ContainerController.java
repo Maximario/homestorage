@@ -6,13 +6,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import ru.homestorage.dto.request.ContainerRequest;
 import ru.homestorage.dto.request.MoveRequest;
 import ru.homestorage.dto.response.ContainerResponse;
 import ru.homestorage.model.Container;
 import ru.homestorage.service.ContainerService;
+import ru.homestorage.service.CustomUserDetails;
 
 import java.util.List;
 import java.util.Map;
@@ -30,8 +30,8 @@ public class ContainerController {
   @Operation(summary = "Get root containers for current user")
   @GetMapping
   public ResponseEntity<List<ContainerResponse>> getRootContainers(
-      @AuthenticationPrincipal UserDetails userDetails) {
-    UUID userId = extractUserId(userDetails);
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UUID userId = userDetails.getUserId();
     List<Container> containers = containerService.getRootContainers(userId);
     return ResponseEntity.ok(containers.stream()
         .map(ContainerResponse::fromEntity)
@@ -42,8 +42,8 @@ public class ContainerController {
   @GetMapping("/{id}")
   public ResponseEntity<ContainerResponse> getContainer(
       @PathVariable UUID id,
-      @AuthenticationPrincipal UserDetails userDetails) {
-    UUID userId = extractUserId(userDetails);
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UUID userId = userDetails.getUserId();
     Container container = containerService.getContainerForUser(id, userId);
     return ResponseEntity.ok(ContainerResponse.fromEntity(container));
   }
@@ -52,8 +52,8 @@ public class ContainerController {
   @GetMapping("/{id}/children")
   public ResponseEntity<List<ContainerResponse>> getChildContainers(
       @PathVariable UUID id,
-      @AuthenticationPrincipal UserDetails userDetails) {
-    UUID userId = extractUserId(userDetails);
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UUID userId = userDetails.getUserId();
     List<Container> children = containerService.getChildContainers(id, userId);
     return ResponseEntity.ok(children.stream()
         .map(ContainerResponse::fromEntity)
@@ -64,8 +64,8 @@ public class ContainerController {
   @GetMapping("/{id}/tree")
   public ResponseEntity<Map<String, Object>> getContainerTree(
       @PathVariable UUID id,
-      @AuthenticationPrincipal UserDetails userDetails) {
-    UUID userId = extractUserId(userDetails);
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UUID userId = userDetails.getUserId();
     Map<String, Object> tree = containerService.getContainerTree(id, userId);
     return ResponseEntity.ok(tree);
   }
@@ -74,8 +74,8 @@ public class ContainerController {
   @GetMapping("/{id}/path")
   public ResponseEntity<String> getContainerPath(
       @PathVariable UUID id,
-      @AuthenticationPrincipal UserDetails userDetails) {
-    UUID userId = extractUserId(userDetails);
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UUID userId = userDetails.getUserId();
     String path = containerService.getContainerPath(id, userId);
     return ResponseEntity.ok(path);
   }
@@ -84,8 +84,8 @@ public class ContainerController {
   @PostMapping
   public ResponseEntity<ContainerResponse> createContainer(
       @Valid @RequestBody ContainerRequest request,
-      @AuthenticationPrincipal UserDetails userDetails) {
-    UUID userId = extractUserId(userDetails);
+      @AuthenticationPrincipal CustomUserDetails userDetails) {  // <-- CustomUserDetails
+    UUID userId = userDetails.getUserId();
     Container container = containerService.createContainer(
         userId,
         request.getName(),
@@ -103,8 +103,8 @@ public class ContainerController {
   public ResponseEntity<ContainerResponse> updateContainer(
       @PathVariable UUID id,
       @Valid @RequestBody ContainerRequest request,
-      @AuthenticationPrincipal UserDetails userDetails) {
-    UUID userId = extractUserId(userDetails);
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UUID userId = userDetails.getUserId();
     Container container = containerService.updateContainer(
         id,
         userId,
@@ -122,8 +122,8 @@ public class ContainerController {
   public ResponseEntity<ContainerResponse> moveContainer(
       @PathVariable UUID id,
       @Valid @RequestBody MoveRequest request,
-      @AuthenticationPrincipal UserDetails userDetails) {
-    UUID userId = extractUserId(userDetails);
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UUID userId = userDetails.getUserId();
     Container container = containerService.moveContainer(id, request.getParentId(), userId);
     return ResponseEntity.ok(ContainerResponse.fromEntity(container));
   }
@@ -132,15 +132,9 @@ public class ContainerController {
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteContainer(
       @PathVariable UUID id,
-      @AuthenticationPrincipal UserDetails userDetails) {
-    UUID userId = extractUserId(userDetails);
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UUID userId = userDetails.getUserId();
     containerService.deleteContainer(id, userId);
     return ResponseEntity.noContent().build();
-  }
-
-  private UUID extractUserId(UserDetails userDetails) {
-    // Временное решение: получаем userId из email
-    // В будущем нужно добавить поле userId в UserDetails
-    return UUID.randomUUID(); // TODO Заглушка - нужно будет исправить
   }
 }

@@ -1,9 +1,9 @@
 package ru.homestorage.service;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,8 +56,8 @@ public class AuthService {
         new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
     );
 
-    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-    User user = userRepository.findByEmail(userDetails.getUsername())
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    User user = userRepository.findByEmail(userDetails.getEmail())
         .orElseThrow(() -> new RuntimeException("User not found"));
 
     String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getEmail());

@@ -28,18 +28,16 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
         .csrf(AbstractHttpConfigurer::disable)
-        .cors(AbstractHttpConfigurer::disable) // или настройте CORS, если нужно
+        .cors(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
-//                .anyRequest()
-//                .permitAll()
             .requestMatchers(
-                "/api/auth/**",      // регистрация, логин, refresh
+                "/api/auth/**",
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
                 "/actuator/health"
-            ).permitAll()               // доступно всем
-            .anyRequest().authenticated() // всё остальное требует токен
+            ).permitAll()
+            .anyRequest().authenticated()
         )
         .authenticationProvider(authenticationProvider())
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
