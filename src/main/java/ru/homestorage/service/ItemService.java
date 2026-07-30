@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import ru.homestorage.exception.AccessDeniedException;
 import ru.homestorage.exception.ResourceNotFoundException;
 import ru.homestorage.model.Container;
@@ -23,6 +24,7 @@ public class ItemService {
 
   private final ItemRepository itemRepository;
   private final ContainerService containerService;
+  private final PhotoService photoService;
 
   /**
    * Создание новой вещи
@@ -258,5 +260,53 @@ public class ItemService {
       return true; // Заглушка, нужно добавить проверку через GroupMemberRepository
     }
     return false;
+  }
+
+  /**
+   * Добавление фото к вещи
+   */
+  @Transactional
+  public Item addPhoto(UUID itemId, UUID userId, MultipartFile file) {
+    Item item = getItemForUser(itemId, userId);
+
+    // Проверяем права на запись
+    Container container = containerService.getContainerForUser(item.getContainerId(), userId);
+    if (!hasWriteAccess(container, userId)) {
+      throw new AccessDeniedException("You don't have write access to this item");
+    }
+
+    // Удаляем старые фото (если есть)
+    if (item.getPhotoUrl() != null) {
+      photoService.deletePhotos(itemId);
+    }
+
+    // Загружаем новые фото
+    PhotoService.PhotoUploadResult result = photoService.uploadPhoto(itemId, file);
+    item.setPhotoUrl(result.getPhotoUrl());
+    item.setPhotoThumbnailUrl(result.getPhotoThumbnailUrl());
+
+    item = itemRepository.save(item);
+    log.info("Photo added to item: {}", itemId);
+    return item;
+  }
+
+  /**
+   * Удаление фото вещи
+   */
+  @Transactional
+  public void deletePhoto(UUID itemId, UUID userId) {
+    Item item = getItemForUser(itemId, userId);
+
+    Container container = containerService.getContainerForUser(item.getContainerId(), userId);
+    if (!hasWriteAccess(container, userId)) {
+      throw new AccessDeniedException("You don't have write access to this item");
+    }
+
+    photoService.deletePhotos(itemId);
+    item.setPhotoUrl(null);
+    item.setPhotoThumbnailUrl(null);
+    itemRepository.save(item);
+
+    log.info("Photo deleted for item: {}", itemId);
   }
 }

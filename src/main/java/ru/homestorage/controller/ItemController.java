@@ -2,12 +2,15 @@ package ru.homestorage.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.homestorage.dto.request.ItemRequest;
 import ru.homestorage.dto.request.MoveItemRequest;
 import ru.homestorage.dto.response.ItemResponse;
+import ru.homestorage.exception.BadRequestException;
 import ru.homestorage.model.Item;
 import ru.homestorage.model.enums.ItemCategory;
 import ru.homestorage.service.CustomUserDetails;
@@ -159,6 +162,37 @@ public class ItemController {
       @AuthenticationPrincipal CustomUserDetails userDetails) {
     UUID userId = userDetails.getUserId();
     itemService.deleteItem(id, userId);
+    return ResponseEntity.noContent().build();
+  }
+
+  @PostMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<ItemResponse> uploadPhoto(
+      @PathVariable UUID id,
+      @RequestParam("file") MultipartFile file,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    // Проверка размера файла
+    if (file.getSize() > 10 * 1024 * 1024) { // 10MB
+      throw new BadRequestException("File size exceeds 10MB limit");
+    }
+
+    // Проверка типа файла
+    String contentType = file.getContentType();
+    if (contentType == null || !contentType.startsWith("image/")) {
+      throw new BadRequestException("Only image files are allowed");
+    }
+
+    UUID userId = userDetails.getUserId();
+    Item item = itemService.addPhoto(id, userId, file);
+    return ResponseEntity.ok(ItemResponse.fromEntity(item));
+  }
+
+  @DeleteMapping("/{id}/photo")
+  public ResponseEntity<Void> deletePhoto(
+      @PathVariable UUID id,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UUID userId = userDetails.getUserId();
+    itemService.deletePhoto(id, userId);
     return ResponseEntity.noContent().build();
   }
 }

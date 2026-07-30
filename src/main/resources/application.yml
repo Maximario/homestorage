@@ -33,6 +33,8 @@ minio:
   access-key: minioadmin
   secret-key: minioadmin123
   bucket-name: homestorage-photos
+  photos-path: photos/
+  thumbnail-size: 300  # Размер превью в пикселях
 
 jwt:
   secret: ${JWT_SECRET:your-very-secure-jwt-secret-key-at-least-256-bits-long-12345678901234567890123456789012}
