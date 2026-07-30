@@ -10,7 +10,7 @@ import ru.homestorage.dto.response.AuthResponse;
 import ru.homestorage.service.AuthService;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
 

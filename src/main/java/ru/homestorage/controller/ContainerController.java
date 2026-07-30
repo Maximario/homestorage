@@ -20,7 +20,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/containers")
+@RequestMapping("/api/v1/containers")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearer-auth")
 public class ContainerController {
