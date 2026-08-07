@@ -36,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     log.debug("Request path: {}", path);
 
     // Пропускаем публичные эндпоинты БЕЗ проверки токена
-    if (path.startsWith("/api/auth/") ||
+    if (path.startsWith("/api/v1/auth/") ||
         path.startsWith("/actuator/") ||
         path.startsWith("/swagger-ui/") ||
         path.startsWith("/v3/api-docs/")) {
